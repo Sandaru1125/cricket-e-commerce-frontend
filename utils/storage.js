@@ -11,3 +11,15 @@ export const getToken = async () => {
 export const removeToken = async () => {
   await AsyncStorage.removeItem("token");
 };
+
+export const saveRole = async (role) => {
+  await AsyncStorage.setItem("role", role);
+};
+
+export const getRole = async () => {
+  return await AsyncStorage.getItem("role");
+};
+
+export const removeRole = async () => {
+  await AsyncStorage.removeItem("role");
+};
