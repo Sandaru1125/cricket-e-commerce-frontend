@@ -6,7 +6,7 @@ import CustomButton from "../../components/CustomButton";
 import InputField from "../../components/InputField";
 
 import { loginUser } from "../../services/authService";
-import { saveToken } from "../../utils/storage";
+import { saveToken, saveRole } from "../../utils/storage";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
@@ -26,6 +26,7 @@ export default function Login({ navigation }) {
 
       // 💾 Save token
       await saveToken(res.data.token);
+      await saveRole(res.data.role);
 
       Alert.alert("Success", "Login successful!");
 

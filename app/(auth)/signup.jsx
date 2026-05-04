@@ -9,10 +9,12 @@ import {
     StyleSheet,
     Text,
     View,
+    TouchableOpacity,
 } from "react-native";
 
-import CustomButton from "@/components/CustomButton";
-import InputField from "@/components/InputField";
+import CustomButton from "../../components/CustomButton";
+import InputField from "../../components/InputField";
+import { registerUser } from "../../services/authService";
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -20,8 +22,10 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("customer");
+  const [loading, setLoading] = useState(false);
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     const trimmedName = fullName.trim();
     const trimmedEmail = email.trim();
 
@@ -43,8 +47,19 @@ export default function SignupScreen() {
       return;
     }
 
-    Alert.alert("Account created", `Welcome, ${trimmedName}!`);
-    router.replace("/login");
+    try {
+      setLoading(true);
+      await registerUser({ name: trimmedName, email: trimmedEmail, password, role });
+      Alert.alert("Account created", `Welcome, ${trimmedName}!`);
+      router.replace("/login");
+    } catch (error) {
+      Alert.alert(
+        "Registration Failed",
+        error.response?.data?.message || "Something went wrong",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -97,10 +112,27 @@ export default function SignupScreen() {
               textContentType="newPassword"
               autoComplete="password-new"
               returnKeyType="done"
-              onSubmitEditing={handleSignup}
             />
 
-            <CustomButton title="Sign up" onPress={handleSignup} />
+            <View style={styles.roleContainer}>
+                <Text style={styles.roleLabel}>I am a:</Text>
+                <View style={styles.roleOptions}>
+                    <TouchableOpacity 
+                        style={[styles.roleOption, role === "customer" && styles.roleSelected]} 
+                        onPress={() => setRole("customer")}
+                    >
+                        <Text style={[styles.roleText, role === "customer" && styles.roleTextSelected]}>Customer</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[styles.roleOption, role === "admin" && styles.roleSelected]} 
+                        onPress={() => setRole("admin")}
+                    >
+                        <Text style={[styles.roleText, role === "admin" && styles.roleTextSelected]}>Admin</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            <CustomButton title={loading ? "Signing up..." : "Sign up"} onPress={handleSignup} />
 
             <Text style={styles.footerText}>
               Already have an account?{" "}
@@ -160,5 +192,37 @@ const styles = StyleSheet.create({
   link: {
     color: "#22c55e",
     fontWeight: "700",
+  },
+  roleContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  roleLabel: {
+    fontSize: 16,
+    color: "#475569",
+    marginBottom: 8,
+  },
+  roleOptions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  roleOption: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    alignItems: "center",
+  },
+  roleSelected: {
+    backgroundColor: "#22c55e",
+    borderColor: "#22c55e",
+  },
+  roleText: {
+    color: "#475569",
+    fontWeight: "600",
+  },
+  roleTextSelected: {
+    color: "#fff",
   },
 });

@@ -6,6 +6,6 @@ export const createProduct = (data, token) =>
   API.post("/products", data, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      "Content-Type": "multipart/form-data",
     },
   });
